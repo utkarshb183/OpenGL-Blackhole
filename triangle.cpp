@@ -16,7 +16,24 @@ const char* fragmentShaderSource =
     "out vec4 FragColor;\r\n"
     "void main()\r\n"
     "{\r\n"
-    "   FragColor = vec4(0.0f, 0.5f, 1.0f, 1.0f);\r\n"
+    "   vec2 uv = (gl_FragCoord.xy - vec2(400.0, 300.0))/ vec2(300.0, 300.0);\r\n"
+    "   vec3 camPos = vec3(0.0, 0.0, -10.0);\r\n"
+    "   vec3 rayDir = normalize(vec3(uv.x, uv.y, 1.0));\r\n"
+    "   vec3 sphereCenter = vec3(0.0, 0.0, 0.0); \r\n"
+    "   float radius = 2.0;\r\n"
+    "   vec3 oc = camPos - sphereCenter;\r\n"
+    "   float a = dot(rayDir, rayDir);\r\n"
+    "   float b = 2.0*dot(oc, rayDir);\r\n"
+    "   float c = dot(oc, oc) - radius*radius;\r\n"
+    "   float d = b*b - 4.0*a*c;\r\n"
+    "   if( d > 0.0){\r\n"
+    "   vec3 hitPoint = camPos + rayDir*(-b - sqrt(d))/(2.0*a);\r\n"
+    "   vec3 normal = normalize(hitPoint - sphereCenter);\r\n"
+    "   vec3 lightDir = normalize(vec3(1.0, 1.0, -1.0));\r\n"
+    "   float diff = max(dot(normal, lightDir), 0.0);\r\n"
+    "   FragColor = vec4(diff, diff*0.5, 0.0, 1.0);}\r\n"
+    "   else\r\n"
+    "   FragColor = vec4(0.0, 0.0, 0.0, 1.0);\r\n"
     "}\r\n";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
@@ -66,9 +83,13 @@ int main(){
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    float vertices[] = { -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+    float vertices[] = { -1.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+
+        -1.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
     };
 
     unsigned int VBO, VAO;
@@ -86,7 +107,7 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         glfwSwapBuffers(window);
         glfwPollEvents();
 
