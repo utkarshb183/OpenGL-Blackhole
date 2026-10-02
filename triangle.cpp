@@ -14,6 +14,9 @@ const char* vertexShaderSource =
 const char* fragmentShaderSource =
     "#version 330 core\r\n"
     "out vec4 FragColor;\r\n"
+    "float hash(vec2 p) {\r\n"
+    "   return fract(sin(dot(p, vec2(12.998, 78.233)))*43758.5453);\r\n"
+    "}\r\n"
     "void main()\r\n"
     "{\r\n"
     "   vec2 uv = (gl_FragCoord.xy - vec2(400.0, 300.0))/ vec2(300.0, 300.0);\r\n"
@@ -32,8 +35,14 @@ const char* fragmentShaderSource =
     "   vec3 lightDir = normalize(vec3(1.0, 1.0, -1.0));\r\n"
     "   float diff = max(dot(normal, lightDir), 0.0);\r\n"
     "   FragColor = vec4(diff, diff*0.5, 0.0, 1.0);}\r\n"
-    "   else\r\n"
-    "   FragColor = vec4(0.0, 0.0, 0.0, 1.0);\r\n"
+    "   else{\r\n"
+    "       float star = hash(gl_FragCoord.xy);\r\n"
+    "       if(star > 0.998){\r\n"
+    "           FragColor = vec4(1.0, 1.0, 1.0, 1.0);\r\n"
+    "       } else{\r\n"
+    "          FragColor = vec4(0.0, 0.0, 0.0, 1.0);\r\n"
+    "       }\r\n"
+    "   }\r\n"
     "}\r\n";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
